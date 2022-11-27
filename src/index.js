@@ -4,7 +4,7 @@ import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 const refs = {
   searchForm: document.querySelector('.search-form'),
-  gallary: document.querySelector('.gallery'),
+  gallery: document.querySelector('.gallery'),
 };
 
 refs.searchForm.addEventListener('submit', onSearch);
@@ -12,25 +12,22 @@ refs.searchForm.addEventListener('submit', onSearch);
 let searchQuery = '';
 
 function onSearch(evt) {
-    evt.preventDefault();
-    console.dir(evt.target.elements)
- searchQuery = evt.currentTarget.serchQuery.value.trim();
+  evt.preventDefault();
+  console.dir(evt.currentTarget.elements);
+  searchQuery = evt.currentTarget.elements.value.trim();
 
-    if (!searchQuery) {
-        return
-        notifyInfo
-    }
-    fetchPhotoApi('searchQuery').then(data=>console.log(data))
+  if (!searchQuery) {
+    return;
+    notifyInfo();
+  }
+  fetchPhotoApi(searchQuery).then(data => createMarkup(data.hits));
 }
 
 const BASE_URL = 'https://pixabay.com/api/';
 const API_KEY = '31629453-3aa42bb9ff6dc8c3c3e379cd8';
 
 function fetchPhotoApi(searchValue) {
-  return fetch(
-    `${BASE_URL}?key=${API_KEY}&q=${searchValue}`
-    
-  )
+  return fetch(`${BASE_URL}?key=${API_KEY}&q=${searchValue}`)
     .then(resp => {
       if (!resp.ok) {
         throw new Error(resp.statusText);
@@ -40,8 +37,6 @@ function fetchPhotoApi(searchValue) {
     .catch(error => console.error(error));
 }
 
-fetchPhotoApi();
-
 // const options = {
 //     headers:{
 //         Authorization: 1236,
@@ -49,7 +44,17 @@ fetchPhotoApi();
 // }
 
 function createMarkup(arr) {
-    const markup = arr.map(({webformatURL, largeImageURL, tags, likes, views, comments, downloads})=> {
+  const markup = arr
+    .map(
+      ({
+        webformatURL,
+        largeImageURL,
+        tags,
+        likes,
+        views,
+        comments,
+        downloads,
+      }) => {
         `<a href="${largeImageURL}"><div class="photo-card">
   <img src="${webformatURL}" alt="${tags}" loading="lazy" />
   <div class="info">
@@ -66,6 +71,10 @@ function createMarkup(arr) {
       <b>Downloads</b>${downloads}
     </p>
   </div>
-</div></a>`
-    }).join('')
+</div></a>`;
+      }
+    )
+    .join('');
+
+  refs.gallery.innerHTML = markup;
 }
