@@ -9,16 +9,27 @@ const refs = {
 
 refs.searchForm.addEventListener('submit', onSearch);
 
+let searchQuery = '';
+
 function onSearch(evt) {
-  evt.preventDefault();
+    evt.preventDefault();
+    console.dir(evt.target.elements)
+ searchQuery = evt.currentTarget.serchQuery.value.trim();
+
+    if (!searchQuery) {
+        return
+        notifyInfo
+    }
+    fetchPhotoApi('searchQuery').then(data=>console.log(data))
 }
 
 const BASE_URL = 'https://pixabay.com/api/';
-const API_KEY = '31629453 - 3aa42bb9ff6dc8c3c3e379cd8';
+const API_KEY = '31629453-3aa42bb9ff6dc8c3c3e379cd8';
 
-function fetchPhotoApi(searchQuery) {
+function fetchPhotoApi(searchValue) {
   return fetch(
-    `${BASE_URL}?key=${API_KEY}&q=${searchQuery}&image_type=photo&orientation=horizontal&safesearch=true`
+    `${BASE_URL}?key=${API_KEY}&q=${searchValue}`
+    
   )
     .then(resp => {
       if (!resp.ok) {
@@ -26,7 +37,6 @@ function fetchPhotoApi(searchQuery) {
       }
       return resp.json();
     })
-    .then(data => console.log(data))
     .catch(error => console.error(error));
 }
 
@@ -37,3 +47,25 @@ fetchPhotoApi();
 //         Authorization: 1236,
 //     }
 // }
+
+function createMarkup(arr) {
+    const markup = arr.map(({webformatURL, largeImageURL, tags, likes, views, comments, downloads})=> {
+        `<a href="${largeImageURL}"><div class="photo-card">
+  <img src="${webformatURL}" alt="${tags}" loading="lazy" />
+  <div class="info">
+    <p class="info-item">
+      <b>Likes</b>${likes}
+    </p>
+    <p class="info-item">
+      <b>Views</b>${views}
+    </p>
+    <p class="info-item">
+      <b>Comments</b>${comments}
+    </p>
+    <p class="info-item">
+      <b>Downloads</b>${downloads}
+    </p>
+  </div>
+</div></a>`
+    }).join('')
+}
