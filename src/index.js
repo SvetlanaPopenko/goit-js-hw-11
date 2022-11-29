@@ -1,50 +1,61 @@
 import './css/styles.css';
 
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import SimpleLightbox from "simplelightbox";
+import "simplelightbox/dist/simple-lightbox.min.css";
+
+const BASE_URL = 'https://pixabay.com/api/';
+const API_KEY = '31629453-3aa42bb9ff6dc8c3c3e379cd8';
+const PER_PAGE = 40;
+
+let searchQuery = '';
+let pageNumber = 1;
 
 const refs = {
   searchForm: document.querySelector('.search-form'),
   gallery: document.querySelector('.gallery'),
-};
-
-refs.searchForm.addEventListener('submit', onSearch);
-
-let searchQuery = '';
-
-function onSearch(evt) {
-  evt.preventDefault();
-  console.dir(evt.currentTarget.elements);
-  searchQuery = evt.currentTarget.elements.value.trim();
-
-  if (!searchQuery) {
-    return;
-    notifyInfo();
+  guard: document.querySelector('.js-guard'),
+  };
+console.log(refs.searchForm)
+const options = {
+  root: null,
+  rootMargin: '200px',
+  threshold: 1.0,
   }
-  fetchPhotoApi(searchQuery).then(data => createMarkup(data.hits));
-}
+const observer = new IntersectionObserver(onLoad, options);
 
-const BASE_URL = 'https://pixabay.com/api/';
-const API_KEY = '31629453-3aa42bb9ff6dc8c3c3e379cd8';
+// refs.searchForm.addEventListener('submit', onSearch);
 
-function fetchPhotoApi(searchValue) {
-  return fetch(`${BASE_URL}?key=${API_KEY}&q=${searchValue}`)
+// function onSearch(evt) {
+//   evt.preventDefault();
+//     searchQuery = evt.currentTarget.elements.value;
+
+//   if (!searchQuery) {
+//     return;
+//     notifyInfo();
+//   }
+  
+// }
+
+
+
+function fetchPhotoApi(searchValue, pageNumber = 1) {
+  return fetch(`${BASE_URL}?key=${API_KEY}&q=${searchValue}&page=${pageNumber}&per_page=${PER_PAGE}`)
     .then(resp => {
       if (!resp.ok) {
         throw new Error(resp.statusText);
       }
       return resp.json();
     })
-    .catch(error => console.error(error));
-}
+    }
 
-// const options = {
-//     headers:{
-//         Authorization: 1236,
-//     }
-// }
+fetchPhotoApi().then(data => {
+  refs.gallery.insertAdjacentHTML('beforeend', createMarkup(data.hits))
+    observer.observe(refs.guard)
+}).catch(error => console.error(error));
 
-function createMarkup(arr) {
-  const markup = arr
+export function createMarkup(arr) {
+  return arr
     .map(
       ({
         webformatURL,
@@ -54,7 +65,7 @@ function createMarkup(arr) {
         views,
         comments,
         downloads,
-      }) => {
+      }) => 
         `<a href="${largeImageURL}"><div class="photo-card">
   <img src="${webformatURL}" alt="${tags}" loading="lazy" />
   <div class="info">
@@ -71,10 +82,23 @@ function createMarkup(arr) {
       <b>Downloads</b>${downloads}
     </p>
   </div>
-</div></a>`;
-      }
-    )
+</div></a>`)
     .join('');
+  }
 
-  refs.gallery.innerHTML = markup;
-}
+  // function addMarkup(arr) {
+  //   refs.gallery.insertAdjacentHTML('beforeend', createMarkup(arr))
+  // }
+
+function onLoad(entries, observer) {
+  console.log(entries);
+  //  pageNumber += 1;
+  //  fetchPhotoApi(pageNumber).then(data => {
+  //    refs.gallery.insertAdjacentHTML('beforeend', createMarkup(data.hits));
+  //    if (data.pageNumber === data.pages) {
+  //      refs.loadMore.setAttribute('hidden', true)
+  //    }
+  //  })
+  //  .catch(error => console.error(error));
+ }
+
