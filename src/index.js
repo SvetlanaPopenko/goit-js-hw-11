@@ -3,10 +3,17 @@ import './css/styles.css';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import axios from 'axios';
 
 const BASE_URL = 'https://pixabay.com/api/';
 const API_KEY = '31629453-3aa42bb9ff6dc8c3c3e379cd8';
-const PER_PAGE = 40;
+
+const searchParams = new URLSearchParams({
+  per_page: 40,
+  image_type: 'photo',
+  orientation: 'horizontal',
+  safesearch: true,
+});
 
 let searchQuery = '';
 let page = 1;
@@ -38,15 +45,15 @@ const observer = new IntersectionObserver(onLoad, options);
 
 // }
 
-function fetchPhotoApi(searchValue, page = 1) {
-  return fetch(
-    `${BASE_URL}?key=${API_KEY}&q=${searchValue}&page=${page}&per_page=${PER_PAGE}`
-  ).then(resp => {
-    if (!resp.ok) {
-      throw new Error(resp.statusText);
-    }
-    return resp.json();
-  });
+async function fetchPhotoApi(searchValue, page = 1) {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}?key=${API_KEY}&q=${searchParams}&page=${page}`
+    );
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 fetchPhotoApi()
@@ -68,7 +75,8 @@ export function createMarkup(arr) {
         comments,
         downloads,
       }) =>
-        `<a href="${largeImageURL}"><div class="photo-card">
+        `<a href="${largeImageURL}">
+        <div class="photo-card">
   <img src="${webformatURL}" alt="${tags}" loading="lazy" />
   <div class="info">
     <p class="info-item">
@@ -94,17 +102,16 @@ export function createMarkup(arr) {
 // }
 
 function onLoad(entries, observer) {
- 
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       page += 1;
       fetchPhotoApi(page).then(data => {
         refs.gallery.insertAdjacentHTML('beforeend', createMarkup(data.hits));
         if (data.page === data.pages) {
-       observer.unobserve(refs.guard);
-     }
+          observer.unobserve(refs.guard);
+        }
       });
     }
   });
-   console.log(entries);
+  console.log(entries);
 }
