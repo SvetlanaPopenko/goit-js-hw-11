@@ -5,15 +5,11 @@ import { PER_PAGE, fetchPhotoApi } from './modules.js/fetch';
 import { simpleGallery } from './modules.js/simplelightbox';
 import { refs } from './modules.js/refs';
 
-
 import {
   notifyFailure,
-  notifyInfo,
   notifySuccess,
   notifyInfoSearch,
 } from './modules.js/notify';
-
-
 
 let searchQuery = '';
 let page = 1;
@@ -45,7 +41,7 @@ async function onSearch(evt) {
       notifySuccess(totalHits);
       addMarkup(gallery.data.hits);
       simpleGallery.refresh();
-      
+
       observer.observe(refs.guard);
     })
     .catch(error => console.log(error));
@@ -68,21 +64,23 @@ async function onLoad(entries, observer) {
     if (entry.isIntersecting) {
       page += 1;
 
-      fetchPhotoApi(searchQuery, page).then(gallery => {
-        addMarkup(gallery.data.hits);
-        simpleGallery.refresh();
+      fetchPhotoApi(searchQuery, page)
+        .then(gallery => {
+          addMarkup(gallery.data.hits);
+          simpleGallery.refresh();
 
-        const { height: cardHeight } = document
-          .querySelector(".gallery")
-          .firstElementChild.getBoundingClientRect();
+          const { height: cardHeight } = document
+            .querySelector('.gallery')
+            .firstElementChild.getBoundingClientRect();
 
-        window.scrollBy({
-          top: cardHeight * 2,
-          behavior: "smooth",
+          window.scrollBy({
+            top: cardHeight * 2,
+            behavior: 'smooth',
+          });
+        })
+        .catch(error => {
+          console.log(error);
         });
-      }).catch(error => {
-        console.log(error);
-      });
       if (page === Math.round(totalHits / PER_PAGE)) {
         observer.unobserve(refs.guard);
         page = 1;
@@ -90,4 +88,3 @@ async function onLoad(entries, observer) {
     }
   });
 }
-  
