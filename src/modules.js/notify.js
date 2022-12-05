@@ -8,12 +8,6 @@ export const notifyFailure = () => {
     }
   );
 };
-export const notifyInfo = () => {
-  return Notify.info(
-    "We're sorry, but you've reached the end of search results.",
-    { timeout: 1000 }
-  );
-};
 
 export const notifySuccess = totalHits => {
   return Notify.success(`Hooray! We found ${totalHits} images.`, {
