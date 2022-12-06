@@ -1,15 +1,15 @@
 import './css/styles.css';
 
-import { createMarkup } from './modules.js/markup';
-import { PER_PAGE, fetchPhotoApi } from './modules.js/fetch';
-import { simpleGallery } from './modules.js/simplelightbox';
-import { refs } from './modules.js/refs';
+import { createMarkup } from './modules/markup';
+import { PER_PAGE, fetchPhotoApi } from './modules/fetch';
+import { simpleGallery } from './modules/simplelightbox';
+import { refs } from './modules/refs';
 
 import {
   notifyFailure,
   notifySuccess,
   notifyInfoSearch,
-} from './modules.js/notify';
+} from './modules/notify';
 
 let searchQuery = '';
 let page = 1;
